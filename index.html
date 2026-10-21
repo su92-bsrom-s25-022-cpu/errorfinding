@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyclic Code Cp(0,s,t) - Error Detection & Correction Tool</title>
+    
+    
+
+<script src="codcups.js?v=0.3"></script>
+
+<!-- Favicon -->
+<link rel="icon" href="logos/tag-logo.png" type="image/x-icon">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 50%, #0c0c1d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+            text-shadow: 0 0 20px rgba(0,212,255,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 25px;
+            font-size: 1em;
+        }
+
+        /* Tab Styles */
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            background: rgba(255,255,255,0.03);
+            color: #888;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: #ccc;
+        }
+
+        .tab-btn.active-c5 {
+            background: rgba(255,165,0,0.1);
+            border-color: rgba(255,165,0,0.4);
+            color: #ffa500;
+        }
+
+        .tab-btn.active-c7 {
+            background: rgba(0,212,255,0.1);
+            border-color: rgba(0,212,255,0.4);
+            color: #00d4ff;
+        }
+
+        .tab-content {
+            display: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0 0 15px 15px;
+            padding: 25px;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active { display: block; }
+
+        .section {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .section h2 {
+            font-size: 1.2em;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section h2.c5-color { color: #ffa500; }
+        .section h2.c7-color { color: #00d4ff; }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .input-group { display: flex; flex-direction: column; }
+
+        .input-group label {
+            color: #aaa;
+            margin-bottom: 4px;
+            font-size: 0.85em;
+        }
+
+        .input-group input, .input-group textarea {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 9px 11px;
+            color: #fff;
+            font-size: 0.95em;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 8px rgba(0,212,255,0.2);
+        }
+
+        .btn {
+            padding: 11px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-c5 { background: linear-gradient(135deg, #ffa500, #cc8400); color: #fff; }
+        .btn-c7 { background: linear-gradient(135deg, #00d4ff, #0088cc); color: #fff; }
+        .btn-clear { background: linear-gradient(135deg, #ff4444, #cc2222); color: #fff; }
+
+        /* Check Items */
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            border-left: 4px solid #555;
+        }
+
+        .check-item.correct {
+            border-left-color: #00ff88;
+            background: rgba(0,255,136,0.04);
+        }
+
+        .check-item.error {
+            border-left-color: #ff4444;
+            background: rgba(255,68,68,0.06);
+        }
+
+        .check-item.warning {
+            border-left-color: #ffaa00;
+            background: rgba(255,170,0,0.06);
+        }
+
+        .check-item.info {
+            border-left-color: #00aaff;
+            background: rgba(0,170,255,0.04);
+        }
+
+        .check-icon { font-size: 1.2em; margin-right: 10px; min-width: 22px; text-align: center; }
+
+        .check-content { flex: 1; }
+        .check-content .label { font-weight: bold; color: #ccc; font-size: 0.95em; }
+        .check-content .detail { color: #999; font-size: 0.85em; margin-top: 2px; font-family: 'Courier New', monospace; }
+        .check-content .correction { color: #00ff88; font-size: 0.88em; margin-top: 4px; font-weight: bold; }
+
+        .formula-box {
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        .formula-box.c5 { color: #ffa500; }
+        .formula-box.c7 { color: #00d4ff; }
+
+        /* Error Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        table th, table td {
+            padding: 9px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 0.9em;
+        }
+
+        table th {
+            font-weight: bold;
+            background: rgba(255,255,255,0.04);
+        }
+
+        table th.c5 { color: #ffa500; }
+        table th.c7 { color: #00d4ff; }
+
+        .error-val { color: #ff4444; font-weight: bold; }
+        .correct-val { color: #00ff88; font-weight: bold; }
+
+        /* Corrected Section */
+        .corrected-box {
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 12px;
+            line-height: 1.8;
+            font-size: 0.95em;
+        }
+
+        .corrected-box.c5 {
+            background: rgba(255,165,0,0.05);
+            border: 1px solid rgba(255,165,0,0.2);
+        }
+
+        .corrected-box.c7 {
+            background: rgba(0,255,136,0.05);
+            border: 1px solid rgba(0,255,136,0.2);
+        }
+
+        .highlight-c5 {
+            background: rgba(255,165,0,0.25);
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: #ffa500;
+            font-weight: bold;
+        }
+
+        .highlight-c7 {
+            background: rgba(0,255,136,0.2);
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        .strikethrough {
+            text-decoration: line-through;
+            color: #ff4444;
+            opacity: 0.7;
+        }
+
+        .summary-box {
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 1.05em;
+        }
+
+        .summary-ok {
+            background: rgba(0,255,136,0.08);
+            border: 1px solid rgba(0,255,136,0.25);
+            color: #00ff88;
+        }
+
+        .summary-err {
+            background: rgba(255,68,68,0.08);
+            border: 1px solid rgba(255,68,68,0.25);
+            color: #ff6b6b;
+        }
+
+        .poly-display {
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            text-align: center;
+            color: #ffd700;
+        }
+
+        .side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .side-by-side { grid-template-columns: 1fr; }
+            .input-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        #loading5, #loading7 {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.2);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* NEW: Computation Steps Styles */
+        .comp-step {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 14px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.015);
+            border-left: 3px solid #444;
+            font-size: 0.9em;
+        }
+        .comp-step .step-num {
+            min-width: 28px;
+            font-weight: bold;
+            color: #666;
+            font-size: 0.85em;
+        }
+        .comp-step .step-body { flex: 1; }
+        .comp-step .step-calc {
+            font-family: 'Courier New', monospace;
+            color: #bbb;
+            margin-top: 2px;
+        }
+        .comp-step .step-result {
+            color: #ffd740;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        .comp-step.step-highlight {
+            border-left-color: #00d4ff;
+            background: rgba(0,212,255,0.04);
+        }
+        .comp-step.step-highlight-c5 {
+            border-left-color: #ffa500;
+            background: rgba(255,165,0,0.04);
+        }
+        .comp-sub {
+            margin-left: 20px;
+            padding: 4px 10px;
+            font-size: 0.85em;
+            color: #888;
+            font-family: 'Courier New', monospace;
+            border-left: 2px solid rgba(255,255,255,0.06);
+        }
+        .comp-arrow { color: #00ff88; margin: 0 6px; }
+        .coset-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.06);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+        .lcm-step {
+            background: rgba(0,0,0,0.25);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin: 6px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88em;
+            line-height: 1.7;
+            color: #bbb;
+        }
+        .lcm-step .lcm-label { color: #00d4ff; font-weight: bold; }
+        .lcm-step .lcm-label-c5 { color: #ffa500; font-weight: bold; }
+        .lcm-step .lcm-result { color: #ffd740; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a style="margin-left: 38%;  text-decoration: none; font-size: 70px; color: #00d4ff; text-shadow: 0 0 20px rgba(0,212,255,0.3);" href="https://www.codcups.com">Codcups</a>
+    <h1>🔍 Cyclic Code C<sub>p</sub>(0, s, t) — Error Detection & Correction</h1>
+    <p class="subtitle">Supports both C₅ and C₇ — Find errors and get corrected results</p>
+
+    <!-- TABS -->
+    <div class="tab-container">
+        <button class="tab-btn active-c7" id="tabBtn7" onclick="switchTab('c7')">
+            🔵 C₇ — (p=7, m=4, r=1)
+        </button>
+        <button class="tab-btn" id="tabBtn5" onclick="switchTab('c5')">
+            🟠 C₅ — Custom (p=5)
+        </button>
+    </div>
+
+    <!-- ======================== C7 TAB ======================== -->
+    <div class="tab-content active" id="tab-c7">
+        <div class="section">
+            <h2 class="c7-color">📥 C₇ Input Parameters </h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Prime p:</label>
+                    <input type="number" id="c7_p" value="7">
+                </div>
+                <div class="input-group">
+                    <label>Exponent m:</label>
+                    <input type="number" id="c7_m" value="4">
+                </div>
+                <div class="input-group">
+                    <label>Parameter r:</label>
+                    <input type="number" id="c7_r" value="1">
+                </div>
+            </div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Claimed t:</label>
+                    <input type="number" id="c7_t" value="1208">
+                </div>
+                <div class="input-group">
+                    <label>Claimed s:</label>
+                    <input type="number" id="c7_s" value="1201">
+                </div>
+                <div class="input-group">
+                    <label>Claimed n:</label>
+                    <input type="number" id="c7_n" value="2400">
+                </div>
+            </div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Claimed k:</label>
+                    <input type="number" id="c7_k" value="2391">
+                </div>
+                <div class="input-group">
+                    <label>Claimed d:</label>
+                    <input type="number" id="c7_d" value="4">
+                </div>
+                <div class="input-group">
+                    <label>Claimed deg(g):</label>
+                    <input type="number" id="c7_deg" value="9">
+                </div>
+            </div>
+            <div class="input-group" style="margin-top:8px;">
+                <label>Claimed generator poly (coeffs high→low, mod 7):</label>
+                <input type="text" id="c7_genpoly" value="1,3,5,5,2,5,2,5,6,1" style="width:100%;">
+            </div>
+            <div class="input-group" style="margin-top:8px;">
+                <label>Minimal poly of w (coeffs high→low, mod 7):</label>
+                <input type="text" id="c7_minpoly" value="1,0,5,4,3" style="width:100%;">
+            </div>
+            <div>
+                <button class="btn btn-c7" onclick="runVerify('c7')">🔍 Verify C₇</button>
+                <button class="btn btn-clear" onclick="clearTab('c7')">🗑️ Clear</button>
+            </div>
+        </div>
+        <div id="loading7"><span class="spinner"></span> Verifying C₇...</div>
+        <div id="results-c7"></div>
+    </div>
+
+    <!-- ======================== C5 TAB ======================== -->
+    <div class="tab-content" id="tab-c5">
+        <div class="section">
+            <h2 class="c5-color">📥 C₅ Input Parameters</h2>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Prime p:</label>
+                    <input type="number" id="c5_p" value="5">
+                </div>
+                <div class="input-group">
+                    <label>Exponent m:</label>
+                    <input type="number" id="c5_m" value="4">
+                </div>
+                <div class="input-group">
+                    <label>Parameter r:</label>
+                    <input type="number" id="c5_r" value="1">
+                </div>
+            </div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Claimed t:</label>
+                    <input type="number" id="c5_t" value="318">
+                </div>
+                <div class="input-group">
+                    <label>Claimed s:</label>
+                    <input type="number" id="c5_s" value="312">
+                </div>
+                <div class="input-group">
+                    <label>Claimed n:</label>
+                    <input type="number" id="c5_n" value="624">
+                </div>
+            </div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Claimed k:</label>
+                    <input type="number" id="c5_k" value="615">
+                </div>
+                <div class="input-group">
+                    <label>Claimed d:</label>
+                    <input type="number" id="c5_d" value="4">
+                </div>
+                <div class="input-group">
+                    <label>Claimed deg(g):</label>
+                    <input type="number" id="c5_deg" value="9">
+                </div>
+            </div>
+            <div class="input-group" style="margin-top:8px;">
+                <label>Claimed generator poly (coeffs high→low, mod 5):</label>
+                <input type="text" id="c5_genpoly" value="1,3,2,4,1,4,2,3,1,1" style="width:100%;">
+            </div>
+            <div class="input-group" style="margin-top:8px;">
+                <label>Minimal poly of w (coeffs high→low, mod 5):</label>
+                <input type="text" id="c5_minpoly" value="1,0,4,2,2" style="width:100%;">
+            </div>
+            <div>
+                <button class="btn btn-c5" onclick="runVerify('c5')">🔍 Verify C₅</button>
+                <button class="btn btn-clear" onclick="clearTab('c5')">🗑️ Clear</button>
+            </div>
+        </div>
+        <div id="loading5"><span class="spinner"></span> Verifying C₅...</div>
+        <div id="results-c5"></div>
+    </div>
+</div>
+
+<script>
+// ===================== TAB SWITCHING =====================
+function switchTab(tab) {
+    document.getElementById('tab-c5').classList.remove('active');
+    document.getElementById('tab-c7').classList.remove('active');
+    document.getElementById('tabBtn5').className = 'tab-btn';
+    document.getElementById('tabBtn7').className = 'tab-btn';
+
+    document.getElementById('tab-' + tab).classList.add('active');
+    if (tab === 'c5') {
+        document.getElementById('tabBtn5').classList.add('active-c5');
+    } else {
+        document.getElementById('tabBtn7').classList.add('active-c7');
+    }
+}
+
+// ===================== MATH HELPERS =====================
+function mod(a, p) { return ((a % p) + p) % p; }
+
+function modInverse(a, p) {
+    a = mod(a, p);
+    for (let i = 1; i < p; i++) { if (mod(a * i, p) === 1) return i; }
+    return 1;
+}
+
+function polyMod(c, p) { return c.map(x => mod(x, p)); }
+
+function polyTrim(c) {
+    while (c.length > 1 && c[0] === 0) c.shift();
+    return c;
+}
+
+function polyMult(a, b, p) {
+    if (!a.length || !b.length) return [0];
+    let r = new Array(a.length + b.length - 1).fill(0);
+    for (let i = 0; i < a.length; i++)
+        for (let j = 0; j < b.length; j++)
+            r[i + j] = mod(r[i + j] + a[i] * b[j], p);
+    return polyTrim(r);
+}
+
+function polyDivMod(div, dsr, p) {
+    let d = [...div], q = [], inv = modInverse(dsr[0], p);
+    while (d.length >= dsr.length) {
+        let c = mod(d[0] * inv, p);
+        q.push(c);
+        for (let i = 0; i < dsr.length; i++) d[i] = mod(d[i] - c * dsr[i], p);
+        d.shift();
+    }
+    return [polyTrim(q.length ? q : [0]), polyTrim(d.length ? d : [0])];
+}
+
+function polyGCD(a, b, p) {
+    a = polyTrim(polyMod([...a], p));
+    b = polyTrim(polyMod([...b], p));
+    while (!(b.length === 1 && b[0] === 0)) {
+        let [, r] = polyDivMod(a, b, p);
+        a = b; b = polyTrim(r);
+    }
+    if (a[0] !== 0) { let inv = modInverse(a[0], p); a = a.map(c => mod(c * inv, p)); }
+    return a;
+}
+
+function polyLCM(a, b, p) {
+    let g = polyGCD(a, b, p);
+    let prod = polyMult(a, b, p);
+    let [r] = polyDivMod(prod, g, p);
+    if (r[0] !== 0) { let inv = modInverse(r[0], p); r = r.map(c => mod(c * inv, p)); }
+    return r;
+}
+
+// Field arithmetic in GF(p^m) = GF(p)[w]/(minpoly)
+function fieldReduce(poly, mp, p) {
+    let m = mp.length - 1;
+    while (poly.length > m) {
+        let c = mod(poly[0] * modInverse(mp[0], p), p);
+        for (let i = 0; i < mp.length; i++) poly[i] = mod(poly[i] - c * mp[i], p);
+        poly.shift();
+    }
+    while (poly.length < m) poly.unshift(0);
+    return polyMod(poly, p);
+}
+
+function fieldMult(a, b, mp, p) {
+    return fieldReduce(polyMult(a, b, p), mp, p);
+}
+
+function fieldPow(base, exp, mp, p) {
+    let m = mp.length - 1;
+    let result = new Array(m).fill(0); result[m - 1] = 1;
+    base = fieldReduce([...base], mp, p);
+    while (exp > 0) {
+        if (exp & 1) result = fieldMult(result, base, mp, p);
+        exp >>= 1;
+        if (exp > 0) base = fieldMult(base, base, mp, p);
+    }
+    return result;
+}
+
+function cyclotomicCoset(e, p, n) {
+    let coset = [], seen = new Set(), cur = mod(e, n);
+    if (e === 0) return [0];
+    while (!seen.has(cur)) { seen.add(cur); coset.push(cur); cur = mod(cur * p, n); }
+    return coset;
+}
+
+function minPolyOfPower(e, mp, p, m) {
+    let n = Math.pow(p, m) - 1;
+    if (e === 0 || mod(e, n) === 0) return polyMod([1, p - 1], p);
+
+    let w = new Array(m).fill(0);
+    if (m >= 2) w[m - 2] = 1;
+
+    let coset = cyclotomicCoset(e, p, n);
+    let result = [new Array(m).fill(0)];
+    result[0][m - 1] = 1;
+
+    for (let idx = 0; idx < coset.length; idx++) {
+        let conj = fieldPow(w, coset[idx], mp, p);
+        let nr = [];
+        for (let i = 0; i <= result.length; i++) {
+            let term = new Array(m).fill(0);
+            if (i < result.length) term = [...result[i]];
+            if (i > 0) {
+                let neg = conj.map(c => mod(-c, p));
+                let prod = fieldMult(result[i - 1], neg, mp, p);
+                for (let j = 0; j < m; j++) term[j] = mod(term[j] + prod[j], p);
+            }
+            nr.push(term);
+        }
+        result = nr;
+    }
+
+    return result.map(fe => mod(fe[m - 1], p));
+}
+
+function polyToStr(c, v = 'x') {
+    if (!c.length) return '0';
+    let deg = c.length - 1, terms = [];
+    for (let i = 0; i < c.length; i++) {
+        let co = c[i], d = deg - i;
+        if (co === 0) continue;
+        let t = '';
+        if (d === 0) t = '' + co;
+        else if (d === 1) t = (co === 1 ? v : co + v);
+        else t = (co === 1 ? '' : co) + v + '^' + d;
+        terms.push((terms.length ? ' + ' : '') + t);
+    }
+    return terms.length ? terms.join('') : '0';
+}
+
+// ===================== CLEAR =====================
+function clearTab(prefix) {
+    document.getElementById('results-' + prefix).innerHTML = '';
+}
+
+// ===================== MAIN VERIFY =====================
+function runVerify(prefix) {
+    let loadId = prefix === 'c7' ? 'loading7' : 'loading5';
+    document.getElementById(loadId).style.display = 'block';
+    document.getElementById('results-' + prefix).innerHTML = '';
+
+    setTimeout(() => {
+        try { doVerify(prefix); }
+        catch (e) { alert('Error: ' + e.message); console.error(e); }
+        document.getElementById(loadId).style.display = 'none';
+    }, 80);
+}
+
+function doVerify(prefix) {
+    let p = +document.getElementById(prefix + '_p').value;
+    let m = +document.getElementById(prefix + '_m').value;
+    let r = +document.getElementById(prefix + '_r').value;
+
+    let cl_t = +document.getElementById(prefix + '_t').value;
+    let cl_s = +document.getElementById(prefix + '_s').value;
+    let cl_n = +document.getElementById(prefix + '_n').value;
+    let cl_k = +document.getElementById(prefix + '_k').value;
+    let cl_d = +document.getElementById(prefix + '_d').value;
+    let cl_deg = +document.getElementById(prefix + '_deg').value;
+    let cl_gp = document.getElementById(prefix + '_genpoly').value.split(',').map(Number);
+    let mp = document.getElementById(prefix + '_minpoly').value.split(',').map(Number);
+
+    let colorClass = prefix === 'c5' ? 'c5' : 'c7';
+    let hlClass = prefix === 'c5' ? 'highlight-c5' : 'highlight-c7';
+    let corrBoxClass = prefix === 'c5' ? 'c5' : 'c7';
+    let stepHL = prefix === 'c5' ? 'step-highlight-c5' : 'step-highlight';
+    let lcmLbl = prefix === 'c5' ? 'lcm-label-c5' : 'lcm-label';
+
+    let resultsDiv = document.getElementById('results-' + prefix);
+    resultsDiv.innerHTML = '';
+    let errors = [], corrections = {};
+
+    let pm = Math.pow(p, m);
+    let cor_s = (pm - 1) / 2;
+    let pr = Math.pow(p, r);
+    let cor_t = cor_s + pr + 1;
+    let cor_n = pm - 1;
+
+    // =========================================================
+    // NEW SECTION: Detailed Computation Steps
+    // =========================================================
+    let secComp = createSection('🧮 Computation Steps — How Parameters Are Calculated', colorClass);
+    resultsDiv.appendChild(secComp);
+
+    let stepNum = 0;
+
+    // Step 1: p^m
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Compute p<sup>m</sup>`,
+        `p<sup>m</sup> = ${p}<sup>${m}</sup> = ${p} × ${Array(m-1).fill(p).join(' × ')} = <span class="step-result">${pm}</span>`
+    );
+
+    // Step 2: n = p^m - 1
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Compute n = p<sup>m</sup> − 1 (code length)`,
+        `n = ${pm} − 1 = <span class="step-result">${cor_n}</span>`
+    );
+
+    // Step 3: s
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Compute s = (p<sup>m</sup> − 1) / 2`,
+        `s = (${pm} − 1) / 2 = ${pm - 1} / 2 = <span class="step-result">${cor_s}</span>`
+    );
+
+    // Step 4: p^r
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Compute p<sup>r</sup>`,
+        `p<sup>r</sup> = ${p}<sup>${r}</sup> = <span class="step-result">${pr}</span>`
+    );
+
+    // Step 5: t
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Compute t = s + p<sup>r</sup> + 1`,
+        `t = ${cor_s} + ${pr} + 1 = <span class="step-result">${cor_t}</span>`
+    );
+
+    // Step 6: Cyclotomic Cosets
+    let cs0 = cyclotomicCoset(0, p, cor_n);
+    let csS = cyclotomicCoset(cor_s, p, cor_n);
+    let csT = cyclotomicCoset(cor_t, p, cor_n);
+
+    addCompStep(secComp, ++stepNum, '',
+        `Compute cyclotomic cosets mod ${cor_n} (multiply by p=${p} repeatedly)`,
+        ''
+    );
+
+    // Coset C_0 detail
+    let c0Detail = `C<sub>0</sub>: start with 0, multiply by ${p} mod ${cor_n}:<br>`;
+    c0Detail += `<span class="coset-tag">{ ${cs0.join(', ')} }</span> — size ${cs0.length}`;
+    addCompSub(secComp, c0Detail);
+
+    // Coset C_s detail
+    let csDetail = `C<sub>${cor_s}</sub>: start with ${cor_s}, multiply by ${p} mod ${cor_n}:<br>`;
+    let csSteps = [cor_s];
+    let cur = cor_s;
+    for (let i = 1; i < csS.length; i++) {
+        cur = mod(cur * p, cor_n);
+        csSteps.push(cur);
+    }
+    csDetail += csSteps.map((v, i) => {
+        if (i === 0) return `${v}`;
+        return `${csSteps[i-1]}×${p} ≡ ${v} (mod ${cor_n})`;
+    }).join(', ') + '<br>';
+    csDetail += `<span class="coset-tag">{ ${csS.join(', ')} }</span> — size ${csS.length}`;
+    addCompSub(secComp, csDetail);
+
+    // Coset C_t detail
+    let ctDetail = `C<sub>${cor_t}</sub>: start with ${cor_t}, multiply by ${p} mod ${cor_n}:<br>`;
+    let ctSteps = [cor_t];
+    cur = cor_t;
+    for (let i = 1; i < csT.length; i++) {
+        cur = mod(cur * p, cor_n);
+        ctSteps.push(cur);
+    }
+    ctDetail += ctSteps.map((v, i) => {
+        if (i === 0) return `${v}`;
+        return `${ctSteps[i-1]}×${p} ≡ ${v} (mod ${cor_n})`;
+    }).join(', ') + '<br>';
+    ctDetail += `<span class="coset-tag">{ ${csT.join(', ')} }</span> — size ${csT.length}`;
+    addCompSub(secComp, ctDetail);
+
+    // Step 7: Minimal Polynomials
+    addCompStep(secComp, ++stepNum, '',
+        `Compute minimal polynomials m<sub>0</sub>(x), m<sub>s</sub>(x), m<sub>t</sub>(x) over GF(${p})`,
+        `Using w = generator of GF(${p}<sup>${m}</sup>)* with minimal polynomial ${polyToStr(mp, 'w')} = 0`
+    );
+
+    let m0 = [1, mod(p - 1, p)];
+    let ms = null, mt = null, g = null;
+
+    try {
+        ms = minPolyOfPower(cor_s, mp, p, m);
+        mt = minPolyOfPower(cor_t, mp, p, m);
+
+        addCompSub(secComp,
+            `m<sub>0</sub>(x) = <span class="step-result">${polyToStr(m0)}</span> — degree ${m0.length - 1}<br>` +
+            `<span style="color:#888">(minimal poly of w<sup>0</sup> = 1, which is just x − 1 ≡ ${polyToStr(m0)} mod ${p})</span>`
+        );
+
+        // Show how m_s is built
+        addCompSub(secComp,
+            `m<sub>${cor_s}</sub>(x) = minimal polynomial of w<sup>${cor_s}</sup><br>` +
+            `Roots: { w<sup>${csS.join('</sup>, w<sup>')}</sup> } (conjugates from coset C<sub>${cor_s}</sub>)<br>` +
+            `m<sub>${cor_s}</sub>(x) = ∏ (x − w<sup>e</sup>) for e ∈ C<sub>${cor_s}</sub><br>` +
+            `<span class="step-result">m<sub>${cor_s}</sub>(x) = ${polyToStr(ms)}</span> — degree ${ms.length - 1}`
+        );
+
+        addCompSub(secComp,
+            `m<sub>${cor_t}</sub>(x) = minimal polynomial of w<sup>${cor_t}</sup><br>` +
+            `Roots: { w<sup>${csT.join('</sup>, w<sup>')}</sup> } (conjugates from coset C<sub>${cor_t}</sub>)<br>` +
+            `m<sub>${cor_t}</sub>(x) = ∏ (x − w<sup>e</sup>) for e ∈ C<sub>${cor_t}</sub><br>` +
+            `<span class="step-result">m<sub>${cor_t}</sub>(x) = ${polyToStr(mt)}</span> — degree ${mt.length - 1}`
+        );
+
+    } catch (e) {
+        addCompSub(secComp, `<span style="color:#ff4444">Error computing minimal polys: ${e.message}</span>`);
+    }
+
+    // Step 8: Generator polynomial
+    if (ms && mt) {
+        addCompStep(secComp, ++stepNum, stepHL,
+            `Compute generator polynomial g(x) = lcm( m<sub>0</sub>(x), m<sub>${cor_s}</sub>(x), m<sub>${cor_t}</sub>(x) )`,
+            ''
+        );
+
+        let lcm1 = polyLCM(m0, ms, p);
+        let lcmBox = document.createElement('div');
+        lcmBox.className = 'lcm-step';
+        lcmBox.innerHTML =
+            `<span class="${lcmLbl}">Step 8a:</span> lcm( m<sub>0</sub>, m<sub>${cor_s}</sub> )<br>` +
+            `  gcd( ${polyToStr(m0)}, ${polyToStr(ms)} ) = ${polyToStr(polyGCD(m0, ms, p))}<br>` +
+            `  lcm = (m<sub>0</sub> × m<sub>${cor_s}</sub>) / gcd = <span class="lcm-result">${polyToStr(lcm1)}</span> — deg ${lcm1.length - 1}<br><br>` +
+            `<span class="${lcmLbl}">Step 8b:</span> g(x) = lcm( result, m<sub>${cor_t}</sub> )<br>` +
+            `  gcd( ${polyToStr(lcm1)}, ${polyToStr(mt)} ) = ${polyToStr(polyGCD(lcm1, mt, p))}`;
+
+        g = polyLCM(lcm1, mt, p);
+        if (g[0] !== 1) { let inv = modInverse(g[0], p); g = g.map(c => mod(c * inv, p)); }
+
+        lcmBox.innerHTML +=
+            `<br>  lcm = <span class="lcm-result">${polyToStr(g)}</span> — deg ${g.length - 1}<br><br>` +
+            `<span class="${lcmLbl}">Final:</span> <span class="lcm-result">g(x) = ${polyToStr(g)}</span>`;
+        secComp.appendChild(lcmBox);
+
+        // Verify: g divides x^n - 1?
+        let xn1 = new Array(cor_n + 1).fill(0);
+        xn1[0] = 1; xn1[cor_n] = mod(-1, p);
+        // Only check for small n
+        if (cor_n <= 10000) {
+            let [, rem] = polyDivMod(xn1, g, p);
+            let divides = rem.length === 1 && rem[0] === 0;
+            addCompSub(secComp,
+                `Verification: g(x) | (x<sup>${cor_n}</sup> − 1) ? ` +
+                (divides ? `<span style="color:#00ff88">✓ Yes — remainder is 0</span>` :
+                           `<span style="color:#ff4444">✗ No — remainder ≠ 0</span>`)
+            );
+        }
+    }
+
+    // Step 9: k and deg(g)
+    let cor_deg = g ? g.length - 1 : (cs0.length + csS.length + csT.length);
+    let cor_k = cor_n - cor_deg;
+
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Compute deg(g) and k`,
+        `deg(g) = ${cor_deg}<br>` +
+        `k = n − deg(g) = ${cor_n} − ${cor_deg} = <span class="step-result">${cor_k}</span>`
+    );
+
+    // Step 10: Summary
+    addCompStep(secComp, ++stepNum, stepHL,
+        `Final computed parameters`,
+        `C<sub>${p}</sub>(0, ${cor_s}, ${cor_t}) is a [<span class="step-result">${cor_n}</span>, <span class="step-result">${cor_k}</span>, d] code<br>` +
+        `g(x) = <span class="step-result">${g ? polyToStr(g) : '?'}</span><br>` +
+        `Coefficients: <span class="step-result">[${g ? g.join(', ') : '?'}]</span>`
+    );
+
+
+    // =========================================================
+    // EXISTING SECTION: Parameter Verification (unchanged logic)
+    // =========================================================
+    let sec1 = createSection('📊 Step-by-Step Verification — Compare Claimed vs Computed', colorClass);
+    resultsDiv.appendChild(sec1);
+
+    let fb = document.createElement('div');
+    fb.className = 'formula-box ' + colorClass;
+    fb.innerHTML = `p=${p}, m=${m}, r=${r} → p^m=${pm}, p^m-1=${pm - 1}<br>
+        s = (p^m−1)/2 = ${(pm - 1)}/2 = <b>${cor_s}</b><br>
+        t = s + p^r + 1 = ${cor_s} + ${pr} + 1 = <b>${cor_t}</b><br>
+        n = p^m − 1 = <b>${cor_n}</b>`;
+    sec1.appendChild(fb);
+
+    // Check s
+    if (cl_s === cor_s) addChk(sec1, 'correct', 'Check s = (p^m-1)/2', `s = ${cor_s} ✓`);
+    else {
+        addChk(sec1, 'error', 'Check s = (p^m−1)/2',
+            `Claimed s = ${cl_s}, Correct s = ${cor_s}`, `s = ${cor_s}`);
+        errors.push({ param: 's', claimed: cl_s, correct: cor_s });
+    }
+    corrections.s = cor_s;
+
+    // Check t
+    if (cl_t === cor_t) addChk(sec1, 'correct', 'Check t = (p^m−1)/2 + p^r + 1', `t = ${cor_t} ✓`);
+    else {
+        addChk(sec1, 'error', 'Check t = (p^m−1)/2 + p^r + 1',
+            `Claimed t = ${cl_t}, Correct t = ${cor_t}`, `t = ${cor_t}`);
+        errors.push({ param: 't', claimed: cl_t, correct: cor_t });
+    }
+    corrections.t = cor_t;
+
+    // Check n
+    if (cl_n === cor_n) addChk(sec1, 'correct', 'Check n = p^m − 1', `n = ${cor_n} ✓`);
+    else {
+        addChk(sec1, 'error', 'Check n = p^m − 1',
+            `Claimed n = ${cl_n}, Correct n = ${cor_n}`, `n = ${cor_n}`);
+        errors.push({ param: 'n', claimed: cl_n, correct: cor_n });
+    }
+    corrections.n = cor_n;
+
+    // Cyclotomic cosets (already computed above)
+    let cb = document.createElement('div');
+    cb.className = 'formula-box ' + colorClass;
+    cb.innerHTML = `C_0 = {${cs0.join(', ')}} (size ${cs0.length})<br>
+        C_${cor_s} = {${csS.join(', ')}} (size ${csS.length})<br>
+        C_${cor_t} = {${csT.join(', ')}} (size ${csT.length})`;
+    sec1.appendChild(cb);
+
+    addChk(sec1, 'info', 'Cyclotomic cosets computed',
+        `Total generator poly degree = ${cs0.length} + ${csS.length} + ${csT.length} = ${cs0.length + csS.length + csT.length}`);
+
+    // Minimal polynomials display
+    if (ms && mt) {
+        let mpb = document.createElement('div');
+        mpb.className = 'formula-box ' + colorClass;
+        mpb.innerHTML = `m_0(x) = ${polyToStr(m0)} (deg ${m0.length - 1})<br>
+            m_${cor_s}(x) = ${polyToStr(ms)} (deg ${ms.length - 1})<br>
+            m_${cor_t}(x) = ${polyToStr(mt)} (deg ${mt.length - 1})`;
+        sec1.appendChild(mpb);
+
+        let gpd = document.createElement('div');
+        gpd.className = 'poly-display';
+        gpd.innerHTML = `g(x) = ${polyToStr(g)}<br>deg(g) = ${g.length - 1}`;
+        sec1.appendChild(gpd);
+    } else {
+        addChk(sec1, 'warning', 'Minimal polynomial computation',
+            'Could not compute minimal polynomials.');
+    }
+
+    // Check degree
+    if (cl_deg === cor_deg) addChk(sec1, 'correct', 'Check deg(g)', `deg = ${cor_deg} ✓`);
+    else {
+        addChk(sec1, 'error', 'Check deg(g)',
+            `Claimed deg = ${cl_deg}, Correct deg = ${cor_deg}`, `deg(g) = ${cor_deg}`);
+        errors.push({ param: 'deg(g)', claimed: cl_deg, correct: cor_deg });
+    }
+    corrections.deg = cor_deg;
+
+    // Check generator poly coefficients
+    let gpMatch = true;
+    if (g) {
+        if (cl_gp.length !== g.length) gpMatch = false;
+        else for (let i = 0; i < g.length; i++) if (mod(cl_gp[i], p) !== mod(g[i], p)) { gpMatch = false; break; }
+
+        if (gpMatch) addChk(sec1, 'correct', 'Check g(x) coefficients', `g(x) = ${polyToStr(g)} ✓`);
+        else {
+            addChk(sec1, 'error', 'Check g(x) coefficients',
+                `Claimed: ${polyToStr(cl_gp)}<br>Correct: ${polyToStr(g)}`,
+                `g(x) = ${polyToStr(g)}`);
+            errors.push({ param: 'g(x)', claimed: polyToStr(cl_gp), correct: polyToStr(g) });
+        }
+    }
+    corrections.gStr = g ? polyToStr(g) : polyToStr(cl_gp);
+
+    // Check k
+    if (cl_k === cor_k) addChk(sec1, 'correct', 'Check k = n − deg(g)', `k = ${cor_n} − ${cor_deg} = ${cor_k} ✓`);
+    else {
+        addChk(sec1, 'error', 'Check k = n − deg(g)',
+            `Claimed k = ${cl_k}, Correct k = ${cor_k}`, `k = ${cor_k}`);
+        errors.push({ param: 'k', claimed: cl_k, correct: cor_k });
+    }
+    corrections.k = cor_k;
+    corrections.d = cl_d;
+
+    addChk(sec1, 'warning', 'Minimum distance d',
+        `Claimed d = ${cl_d}. Full verification requires exhaustive search.`);
+
+    // ---- Section: Error Table ----
+    let sec2 = createSection('📋 Error Summary Table', colorClass);
+    resultsDiv.appendChild(sec2);
+
+    let tbl = document.createElement('table');
+    let thead = `<thead><tr><th class="${colorClass}">Parameter</th><th class="${colorClass}">Claimed</th>
+        <th class="${colorClass}">Correct</th><th class="${colorClass}">Status</th></tr></thead>`;
+
+    let rows = [
+        ['s', cl_s, cor_s],
+        ['t', cl_t, cor_t],
+        ['n', cl_n, cor_n],
+        ['deg(g)', cl_deg, cor_deg],
+        ['k', cl_k, cor_k],
+    ];
+
+    let tbody = '<tbody>';
+    for (let [name, claimed, correct] of rows) {
+        let err = claimed !== correct;
+        tbody += `<tr><td>${name}</td>
+            <td class="${err ? 'error-val' : ''}">${claimed}</td>
+            <td class="${err ? 'correct-val' : ''}">${correct}</td>
+            <td>${err ? '❌' : '✅'}</td></tr>`;
+    }
+
+    if (g) {
+        let ge = !gpMatch;
+        tbody += `<tr><td>g(x)</td>
+            <td class="${ge ? 'error-val' : ''}" style="font-size:0.8em">${polyToStr(cl_gp)}</td>
+            <td class="${ge ? 'correct-val' : ''}" style="font-size:0.8em">${corrections.gStr}</td>
+            <td>${ge ? '❌' : '✅'}</td></tr>`;
+    }
+    tbody += '</tbody>';
+    tbl.innerHTML = thead + tbody;
+    sec2.appendChild(tbl);
+
+    // ---- Section: Corrected Example ----
+    let sec3 = createSection('✅ Corrected Example', colorClass);
+    resultsDiv.appendChild(sec3);
+
+    let cbox = document.createElement('div');
+    cbox.className = 'corrected-box ' + corrBoxClass;
+
+    if (errors.length === 0) {
+        cbox.innerHTML = `<p style="text-align:center;font-size:1.2em;color:#00ff88;">
+            🎉 No errors found! All parameters are correct.</p>`;
+    } else {
+        let html = `<p><strong>Example (Corrected):</strong></p>
+        <p>Let p = ${p}, m = ${m}, r = ${r}.</p>
+        <p>So, t = (${p}<sup>${m}</sup>−1)/2 + ${p}<sup>${r}</sup> + 1 = `;
+        html += cl_t !== cor_t ? `<span class="strikethrough">${cl_t}</span> <span class="${hlClass}">${cor_t}</span>` : `${cor_t}`;
+        html += ` and s = (${p}<sup>${m}</sup>−1)/2 = `;
+        html += cl_s !== cor_s ? `<span class="strikethrough">${cl_s}</span> <span class="${hlClass}">${cor_s}</span>` : `${cor_s}`;
+        html += `.</p>`;
+
+        html += `<p>Let w be a generator of F<sub>${p}<sup>${m}</sup></sub>* with minimal polynomial ${polyToStr(mp, 'w')} = 0.</p>`;
+
+        html += `<p>The cyclic code C<sub>${p}</sub>(0, ${cor_s}, ${cor_t}) has parameters [`;
+        html += cl_n !== cor_n ? `<span class="strikethrough">${cl_n}</span> <span class="${hlClass}">${cor_n}</span>` : `${cor_n}`;
+        html += `, `;
+        html += cl_k !== cor_k ? `<span class="strikethrough">${cl_k}</span> <span class="${hlClass}">${cor_k}</span>` : `${cor_k}`;
+        html += `, ${corrections.d}],</p>`;
+
+        html += `<p>and its generator polynomial is:<br>`;
+        if (!gpMatch && g) {
+            html += `<span class="strikethrough">${polyToStr(cl_gp)}</span><br>`;
+            html += `<span class="${hlClass}">${corrections.gStr}</span>`;
+        } else {
+            html += corrections.gStr;
+        }
+        html += `.</p>`;
+
+        cbox.innerHTML = html;
+    }
+    sec3.appendChild(cbox);
+
+    // Summary
+    let sbox = document.createElement('div');
+    sbox.className = 'summary-box ' + (errors.length ? 'summary-err' : 'summary-ok');
+    sbox.innerHTML = errors.length === 0
+        ? `✅ All parameters of C<sub>${p}</sub>(0, ${cor_s}, ${cor_t}) verified successfully!`
+        : `❌ Found <strong>${errors.length}</strong> error(s): ${errors.map(e => e.param).join(', ')}`;
+    resultsDiv.appendChild(sbox);
+}
+
+// ===================== UI HELPERS =====================
+function createSection(title, colorClass) {
+    let div = document.createElement('div');
+    div.className = 'section';
+    let h2 = document.createElement('h2');
+    h2.className = colorClass + '-color';
+    h2.innerHTML = title;
+    div.appendChild(h2);
+    return div;
+}
+
+function addChk(container, status, label, detail, correction = '') {
+    let div = document.createElement('div');
+    div.className = 'check-item ' + status;
+    let icon = { correct: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' }[status] || '•';
+    let html = `<span class="check-icon">${icon}</span><div class="check-content">
+        <div class="label">${label}</div><div class="detail">${detail}</div>`;
+    if (correction) html += `<div class="correction">→ ${correction}</div>`;
+    html += '</div>';
+    div.innerHTML = html;
+    container.appendChild(div);
+}
+
+// NEW: Computation step helpers
+function addCompStep(container, num, hlClass, title, content) {
+    let div = document.createElement('div');
+    div.className = 'comp-step ' + hlClass;
+    div.innerHTML = `<span class="step-num">${num}.</span>
+        <div class="step-body">
+            <div class="label">${title}</div>
+            ${content ? '<div class="step-calc">' + content + '</div>' : ''}
+        </div>`;
+    container.appendChild(div);
+}
+
+function addCompSub(container, content) {
+    let div = document.createElement('div');
+    div.className = 'comp-sub';
+    div.innerHTML = content;
+    container.appendChild(div);
+}
+
+// Auto-run C7 on load
+window.addEventListener('load', () => { runVerify('c7'); });
+</script>
+</body>
+</html>
